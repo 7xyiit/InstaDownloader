@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Instagram Downloader</title>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: #1a1a1a;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(to right, #833ab4, #fd1d1d);
+            border-radius: 2px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #444;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="text"]:focus {
+            border-color: #833ab4;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(131, 58, 180, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #selectFolder {
+            background: #f8f9fa;
+            color: #444;
+            border: 2px solid #e0e0e0;
+            margin-bottom: 10px;
+        }
+
+        #selectFolder:hover {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
+
+        #downloadBtn {
+            background: linear-gradient(45deg, #833ab4, #fd1d1d);
+            color: white;
+        }
+
+        #downloadBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(131, 58, 180, 0.3);
+        }
+
+        #downloadBtn:active {
+            transform: translateY(0);
+        }
+
+        #selectedFolder {
+            margin-top: 8px;
+            color: #666;
+            font-size: 13px;
+            word-break: break-all;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #833ab4, #fd1d1d);
+            width: 0%;
+            transition: width 0.3s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        #status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success {
+            background: #e6f4ea;
+            color: #1e8e3e;
+            border-left: 4px solid #1e8e3e;
+        }
+
+        .error {
+            background: #fce8e6;
+            color: #d93025;
+            border-left: 4px solid #d93025;
+        }
+
+        .loading {
+            background: #e8f0fe;
+            color: #1a73e8;
+            border-left: 4px solid #1a73e8;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .icon {
+            font-size: 18px;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Instagram Downloader</h1>
+        
+        <div class="input-group">
+            <label>📂 İndirme Klasörü</label>
+            <button id="selectFolder">Klasör Seç</button>
+            <div id="selectedFolder"></div>
+        </div>
+
+        <div class="input-group">
+            <label>🔗 Instagram Linki</label>
+            <input type="text" id="urlInput" placeholder="Reels veya Story linkini yapıştırın">
+        </div>
+
+        <button id="downloadBtn">İNDİR</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-bar-fill" id="progressBarFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">İndiriliyor... 0%</div>
+        </div>
+
+        <div id="status"></div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const path = require('path');
+        
+        let selectedFolder = '';
+        
+        document.getElementById('selectFolder').addEventListener('click', async () => {
+            const folder = await ipcRenderer.invoke('select-folder');
+            if (folder) {
+                selectedFolder = folder;
+                const folderDiv = document.getElementById('selectedFolder');
+                folderDiv.textContent = folder;
+                folderDiv.style.display = 'block';
+            }
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', async () => {
+            const url = document.getElementById('urlInput').value;
+            if (!url) {
+                showStatus('⚠️ Lütfen bir Instagram linki girin', 'error');
+                return;
+            }
+            if (!selectedFolder) {
+                showStatus('⚠️ Lütfen önce bir klasör seçin', 'error');
+                return;
+            }
+
+            try {
+                showStatus('🚀 İndirme başlatılıyor...', 'loading');
+                document.getElementById('progressContainer').style.display = 'block';
+                
+                const result = await ipcRenderer.invoke('download-media', {
+                    url: url,
+                    folder: selectedFolder
+                });
+
+                if (result.success) {
+                    showStatus(`✨ Dosya başarıyla indirildi: ${result.fileName}`, 'success');
+                    document.getElementById('urlInput').value = '';
+                } else {
+                    showStatus(`❌ ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus('❌ İndirme sırasında bir hata oluştu', 'error');
+            } finally {
+                document.getElementById('progressContainer').style.display = 'none';
+            }
+        });
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = type;
+            statusDiv.style.display = 'block';
+        }
+
+        function updateProgress(progress) {
+            document.getElementById('progressBarFill').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `İndiriliyor... ${progress}%`;
+        }
+
+        ipcRenderer.on('download-progress', (event, progress) => {
+            updateProgress(progress);
+        });
+    </script>
+</body>
+</html> 
